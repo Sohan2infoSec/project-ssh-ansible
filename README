@@ -9,13 +9,13 @@ $ docker build -t test-ansible:v0.1  .
 (I also upload the image on the dockerHub registry if you need to use immediately nhatsangvn/test-ansible:v0.1)
 
 
-### Step 2: Start the openssh-server
+### Step 2: Start the openssh-server container (target_container)
 $ docker run --rm -d --name ssh-server test-ansible:v0.1  # change the image to nhatsangvn/test-ansible:v0.1 if you use mine
 $ docker inspect ssh-server | grep "IPAddr" 
 Note the ip address that we will use for inventory.
 
 
-### Step 3: Start the ansible container
+### Step 3: Start the ansible container  (ansible_container)
 $ docker run -v "$PWD/playbook:/playbook" --rm -it --name ansible test-ansible:v0.1 bash
 $ cd playbook/
 $ vim roles/user/vars/user   # edit user if needed, I set default to ubuntu
