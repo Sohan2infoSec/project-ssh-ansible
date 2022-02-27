@@ -1,0 +1,10 @@
+### Step 1: build the docker image (contain ssh-server and module ansible)
+Note: The id_rsa, id_rsa.pub and supervisord.conf is required for the build context.
+# Assume the image is test-ansible
+docker build -t test-ansible:v0.1 --no-cache .
+(I also upload the image on the dockerHub registry if you need to use immediately nhatsangvn/test-ansible:v0.1)
+
+### Step 2: Start the openssh-server
+
+### Step 3: Start the ansible container
+docker run -v /opt/ssh-ansible-project:/playbook --rm -it --name ansible test-ansible bash

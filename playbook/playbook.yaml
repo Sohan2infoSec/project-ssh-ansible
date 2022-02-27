@@ -1,0 +1,7 @@
+---
+- name: Set up ubuntu user (create user, add pubkey)
+  hosts: all
+  gather_facts: no
+  roles:
+   - user
+  tags: user

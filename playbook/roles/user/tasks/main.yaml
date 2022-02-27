@@ -1,0 +1,40 @@
+###
+- name: Get user var (please edit the ./vars/user to add more user)
+  include_vars:
+    file: "./vars/user"
+    name: users
+- name: Add user
+  user:
+    name: "{{ item.key }}"
+    home: "/home/{{ item.key }}"
+    ## we can generate the hashed password using this command (required python3)
+    ## python3 -c 'import crypt,getpass;pw=getpass.getpass();print(crypt.crypt(pw) if (pw==getpass.getpass("Confirm: ")) else exit())'
+    password: "{{ item.value.password if 'password' in item.value else '$6$t.z0j6Z2/YaModaW$dNulUTxnxc3RwLZsCq1kEphf5tKWJWixeRgSIhwZ6XEUzSUPyvKTZ6ElQVuIskFITvyLBUAgNEHa6rxBxInyi0' }}" ## hash password of "test@123"
+    groups: sudo
+    shell: /bin/bash
+  with_dict: "{{ users }}"
+  register: user_create
+- name: Set authorized ssh key
+  authorized_key:
+    user: "{{ item.key }}"
+    state: present
+    key: "{{ item.value.pubkey }}"
+  with_dict: "{{ users }}"
+  register: user_pubkey
+
+- name: ensure sshd_config allow pubkey for user
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "PubkeyAuthentication"
+    line: "PubkeyAuthentication yes"
+
+- debug:
+    msg: user created successfully
+  when: 
+  - user_create.changed == true
+  - user_pubkey.changed == true
+- debug:
+    msg: user already exist
+  when: 
+  - user_create.changed == false
+  - user_pubkey.changed == false
