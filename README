@@ -1,10 +1,23 @@
+### Step 0: clone the repo and change directory
+git clone https://github.com/Sohan2infoSec/project-ssh-ansible.git
+cd project-ssh-ansible/
+
 ### Step 1: build the docker image (contain ssh-server and module ansible)
 Note: The id_rsa, id_rsa.pub and supervisord.conf is required for the build context.
 # Assume the image is test-ansible
-docker build -t test-ansible:v0.1 --no-cache .
+$ docker build -t test-ansible:v0.1  .
 (I also upload the image on the dockerHub registry if you need to use immediately nhatsangvn/test-ansible:v0.1)
 
+
 ### Step 2: Start the openssh-server
+$ docker run --rm -d --name ssh-server test-ansible:v0.1  # change the image to nhatsangvn/test-ansible:v0.1 if you use mine
+$ docker inspect ssh-server | grep "IPAddr" 
+Note the ip address that we will use for inventory.
+
 
 ### Step 3: Start the ansible container
-docker run -v /opt/ssh-ansible-project:/playbook --rm -it --name ansible test-ansible bash
+$ docker run -v "$PWD/playbook:/playbook" --rm -it --name ansible test-ansible:v0.1 bash
+$ cd playbook/
+$ vim roles/user/vars/user   # edit user if needed, I set default to ubuntu
+$ vim inventory              # set the ip address of Step 2
+$ ansible-playbook -i inventory playbook.yaml  # run the playbook
